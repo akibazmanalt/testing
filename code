@@ -1,0 +1,1113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Apex Grid Series — Spring Oval Challenge</title>
+  <style>
+    :root {
+      --bg: #07090d;
+      --bg-soft: #0d1118;
+      --panel: rgba(14, 18, 26, 0.9);
+      --panel-2: rgba(20, 24, 34, 0.95);
+      --line: rgba(255, 255, 255, 0.08);
+      --text: #f5f7fb;
+      --muted: #a7b0c0;
+      --accent: #ff4f2f;
+      --accent-2: #ff9b4a;
+      --green: #6ee7a8;
+      --shadow: 0 24px 80px rgba(0, 0, 0, 0.42);
+      --radius: 24px;
+      --radius-sm: 16px;
+      --max: 1240px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      font-family: Inter, Arial, Helvetica, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(255, 79, 47, 0.14), transparent 22%),
+        radial-gradient(circle at 85% 18%, rgba(255, 155, 74, 0.1), transparent 18%),
+        linear-gradient(180deg, #0b0e14 0%, #07090d 100%);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: -1;
+      background:
+        linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+      background-size: 42px 42px;
+      mask-image: linear-gradient(180deg, rgba(255,255,255,0.45), rgba(255,255,255,0.06));
+    }
+
+    a { color: inherit; text-decoration: none; }
+    img { max-width: 100%; display: block; }
+    button { font: inherit; }
+
+    .container,
+    .nav-inner,
+    .topbar-inner {
+      width: min(var(--max), calc(100% - 32px));
+      margin: 0 auto;
+    }
+
+    .topbar {
+      border-bottom: 1px solid var(--line);
+      background: rgba(8, 10, 14, 0.82);
+      backdrop-filter: blur(14px);
+    }
+
+    .topbar-inner {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 14px;
+      padding: 10px 0;
+      color: var(--muted);
+      font-size: 0.92rem;
+      flex-wrap: wrap;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.03);
+      white-space: nowrap;
+    }
+
+    .chip-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      box-shadow: 0 0 14px rgba(255, 79, 47, 0.55);
+    }
+
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      border-bottom: 1px solid var(--line);
+      background: rgba(7, 9, 13, 0.84);
+      backdrop-filter: blur(18px);
+    }
+
+    .nav-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 18px 0;
+    }
+
+    .brand {
+      min-width: 200px;
+    }
+
+    .brand-title {
+      font-size: 1.5rem;
+      font-weight: 1000;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      line-height: 1;
+    }
+
+    .brand-title span { color: var(--accent); }
+
+    .brand-sub {
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.22em;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .nav-links a {
+      color: var(--muted);
+      font-weight: 650;
+      transition: color 0.2s ease;
+    }
+
+    .nav-links a:hover { color: var(--text); }
+
+    .btn {
+      border: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 14px 20px;
+      border-radius: 14px;
+      font-weight: 850;
+      transition: transform 0.18s ease, box-shadow 0.18s ease, opacity 0.18s ease;
+    }
+
+    .btn:hover { transform: translateY(-1px); }
+
+    .btn-primary {
+      color: white;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      box-shadow: 0 16px 34px rgba(255, 79, 47, 0.28);
+    }
+
+    .btn-secondary {
+      color: var(--text);
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.04);
+    }
+
+    main.container { padding-bottom: 40px; }
+
+    section { padding: 18px 0; }
+
+    .hero {
+      padding-top: 34px;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 24px;
+      align-items: stretch;
+    }
+
+    .glass {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(14px);
+      border-radius: 28px;
+    }
+
+    .hero-copy {
+      padding: 34px;
+      position: relative;
+      overflow: hidden;
+      background:
+        linear-gradient(160deg, rgba(255, 79, 47, 0.12), transparent 34%),
+        linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.012)),
+        var(--panel);
+    }
+
+    .hero-copy::after {
+      content: "";
+      position: absolute;
+      inset: auto -10% 18% 40%;
+      height: 220px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.07), transparent);
+      transform: rotate(-10deg);
+      filter: blur(10px);
+      pointer-events: none;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 12px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--line);
+      color: #ffd6c6;
+      font-size: 0.84rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 18px;
+    }
+
+    h1, h2, h3, h4 { margin: 0; line-height: 1.05; }
+
+    h1 {
+      font-size: clamp(2.7rem, 5vw, 5.3rem);
+      font-weight: 1000;
+      text-transform: uppercase;
+      letter-spacing: -0.05em;
+      max-width: 10ch;
+    }
+
+    .gradient-text {
+      background: linear-gradient(135deg, #ffffff 0%, #ffffff 35%, #ff9c4b 68%, #ff4f2f 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .lead {
+      margin: 18px 0 28px;
+      color: var(--muted);
+      font-size: 1.07rem;
+      line-height: 1.72;
+      max-width: 62ch;
+    }
+
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin-bottom: 26px;
+    }
+
+    .stat-card,
+    .feature-card,
+    .info-card,
+    .rule-item,
+    .faq-item,
+    .footer-card,
+    .timeline-step,
+    .progress-box,
+    .form-wrap {
+      background: rgba(255,255,255,0.035);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 18px;
+    }
+
+    .stat-card {
+      padding: 16px;
+    }
+
+    .stat-card small,
+    .meta-item small {
+      display: block;
+      color: var(--muted);
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-size: 0.74rem;
+      font-weight: 800;
+    }
+
+    .stat-card strong,
+    .meta-item strong {
+      font-size: 1.12rem;
+      font-weight: 950;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .prize-panel {
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 85% 18%, rgba(255,155,74,0.14), transparent 22%),
+        linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.015)),
+        var(--panel-2);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .prize-head {
+      padding: 26px 26px 0;
+    }
+
+    .prize-label {
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      font-size: 0.76rem;
+      font-weight: 800;
+    }
+
+    .prize-title {
+      margin-top: 10px;
+      font-size: clamp(1.9rem, 3vw, 3rem);
+      font-weight: 1000;
+      text-transform: uppercase;
+      line-height: 0.95;
+    }
+
+    .prize-image-wrap {
+      margin: 22px 26px 14px;
+      min-height: 310px;
+      border-radius: 24px;
+      border: 1px solid rgba(255,255,255,0.09);
+      background:
+        linear-gradient(145deg, rgba(255, 79, 47, 0.16), transparent 28%),
+        linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.015)),
+        #0d1118;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 28px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .prize-image-wrap::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 25% 28%, rgba(255,255,255,0.12), transparent 0 14%),
+        radial-gradient(circle at 78% 30%, rgba(255,79,47,0.22), transparent 0 17%),
+        linear-gradient(115deg, transparent 16%, rgba(255,255,255,0.04) 19%, transparent 22%, transparent 50%, rgba(255,255,255,0.03) 53%, transparent 56%);
+      pointer-events: none;
+    }
+
+    .prize-image {
+      position: relative;
+      z-index: 1;
+      max-height: 250px;
+      width: auto;
+      object-fit: contain;
+      filter: drop-shadow(0 22px 30px rgba(0,0,0,0.45));
+    }
+
+    .prize-meta {
+      padding: 0 26px 26px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .meta-item {
+      padding: 14px 16px;
+    }
+
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      gap: 18px;
+      margin-bottom: 18px;
+    }
+
+    .section-head h2 {
+      font-size: clamp(1.8rem, 3vw, 2.5rem);
+      text-transform: uppercase;
+      font-weight: 1000;
+      letter-spacing: -0.03em;
+    }
+
+    .section-head p {
+      margin: 0;
+      color: var(--muted);
+      max-width: 62ch;
+      line-height: 1.7;
+    }
+
+    .panel {
+      padding: 24px;
+    }
+
+    .feature-grid,
+    .info-grid,
+    .faq-grid,
+    .footer-grid,
+    .rule-grid {
+      display: grid;
+      gap: 18px;
+    }
+
+    .feature-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .info-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .faq-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .footer-grid { grid-template-columns: 1.15fr 0.85fr 0.85fr; }
+    .rule-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+    .feature-card,
+    .info-card,
+    .rule-item,
+    .faq-item,
+    .footer-card {
+      padding: 22px;
+    }
+
+    .feature-card h3,
+    .info-card h3,
+    .footer-card h3,
+    .form-title,
+    .timeline-title {
+      margin-bottom: 12px;
+      font-size: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      font-weight: 900;
+    }
+
+    .feature-card p,
+    .info-card p,
+    .rule-item,
+    .faq-item p,
+    .footer-card p,
+    .footer-card a,
+    .timeline-note,
+    .form-note {
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    .info-card strong {
+      display: block;
+      margin-top: 8px;
+      font-size: 1.35rem;
+      font-weight: 950;
+    }
+
+    .rule-item strong {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--text);
+      font-weight: 850;
+    }
+
+    .register-grid {
+      display: grid;
+      grid-template-columns: 0.95fr 1.05fr;
+      gap: 20px;
+      align-items: start;
+    }
+
+    .timeline,
+    .form-panel {
+      padding: 24px;
+    }
+
+    .timeline-steps {
+      display: grid;
+      gap: 14px;
+      margin-top: 18px;
+    }
+
+    .timeline-step {
+      display: grid;
+      grid-template-columns: 46px 1fr;
+      gap: 14px;
+      padding: 14px;
+    }
+
+    .step-num {
+      width: 46px;
+      height: 46px;
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      font-weight: 900;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      color: white;
+      box-shadow: 0 10px 20px rgba(255,79,47,0.22);
+    }
+
+    .timeline-step h4 {
+      margin: 0 0 6px;
+      font-size: 1rem;
+      font-weight: 850;
+    }
+
+    .progress-box {
+      padding: 18px;
+      margin-top: 20px;
+      margin-bottom: 18px;
+    }
+
+    .progress-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+
+    .progress-head strong {
+      font-size: 1.1rem;
+      font-weight: 900;
+    }
+
+    .progress-head span {
+      color: var(--green);
+      font-weight: 850;
+    }
+
+    .progress-bar {
+      height: 14px;
+      width: 100%;
+      border-radius: 999px;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.07);
+      background: rgba(255,255,255,0.08);
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 76%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+      box-shadow: 0 0 22px rgba(255,79,47,0.35);
+    }
+
+    .form-wrap {
+      padding: 22px;
+      margin-top: 8px;
+    }
+
+    form {
+      display: grid;
+      gap: 16px;
+    }
+
+    .field-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 0.92rem;
+      font-weight: 750;
+      color: #dbe2ee;
+    }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      border: 1px solid rgba(255,255,255,0.09);
+      background: rgba(255,255,255,0.045);
+      color: var(--text);
+      border-radius: 14px;
+      padding: 14px 15px;
+      font: inherit;
+      outline: none;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+    }
+
+    input::placeholder,
+    textarea::placeholder { color: #8fa0ba; }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      border-color: rgba(255,155,74,0.6);
+      box-shadow: 0 0 0 4px rgba(255,155,74,0.12);
+      background: rgba(255,255,255,0.06);
+    }
+
+    textarea {
+      min-height: 108px;
+      resize: vertical;
+    }
+
+    .checkbox {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      color: var(--muted);
+      font-size: 0.92rem;
+      line-height: 1.6;
+    }
+
+    .checkbox input {
+      width: 18px;
+      height: 18px;
+      margin-top: 2px;
+      accent-color: var(--accent);
+    }
+
+    .link-list {
+      display: grid;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .link-list a { color: var(--muted); }
+    .link-list a:hover { color: var(--text); }
+
+    .footer-bottom {
+      padding: 24px 0 10px;
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      flex-wrap: wrap;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    @media (max-width: 1080px) {
+      .hero-grid,
+      .register-grid,
+      .feature-grid,
+      .info-grid,
+      .faq-grid,
+      .footer-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .footer-grid > :first-child {
+        grid-column: 1 / -1;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .nav-inner,
+      .section-head,
+      .footer-bottom,
+      .progress-head,
+      .topbar-inner {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .hero-grid,
+      .register-grid,
+      .feature-grid,
+      .info-grid,
+      .faq-grid,
+      .footer-grid,
+      .field-row,
+      .stat-grid,
+      .prize-meta,
+      .rule-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-copy,
+      .prize-panel,
+      .panel,
+      .timeline,
+      .form-panel {
+        padding-left: 18px;
+        padding-right: 18px;
+      }
+
+      .prize-image-wrap {
+        margin-left: 0;
+        margin-right: 0;
+      }
+
+      h1 { max-width: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="topbar-inner">
+      <div class="chip"><span class="chip-dot"></span> Spring Oval Challenge registration now open</div>
+      <div class="chip">25 driver cap · Structured race control · Prize-backed event</div>
+    </div>
+  </div>
+
+  <nav class="nav">
+    <div class="nav-inner">
+      <div class="brand">
+        <div class="brand-title">Apex <span>Grid</span> Series</div>
+        <div class="brand-sub">Competitive Sim Racing</div>
+      </div>
+
+      <div class="nav-links">
+        <a href="#home">Home</a>
+        <a href="#about">About</a>
+        <a href="#event">Event</a>
+        <a href="#rules">Rules</a>
+        <a href="#register">Register</a>
+        <a href="#faq">FAQ</a>
+        <a href="#contact">Contact</a>
+        <a class="btn btn-primary" href="#register">Register Now</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container">
+    <section class="hero" id="home">
+      <div class="hero-grid">
+        <div class="hero-copy glass">
+          <div class="eyebrow"><span class="chip-dot"></span> Seasonal Special Event</div>
+          <h1><span class="gradient-text">Sim Racing Competition</span></h1>
+          <p class="lead">
+            Apex Grid Series returns with a full-distance oval event built for disciplined drivers, clean racecraft, and serious pace. Compete in Forza Motorsport (2023) at Eaglerock Oval over 200 laps for a chance to take the grand prize.
+          </p>
+
+          <div class="stat-grid">
+            <div class="stat-card">
+              <small>Race Date</small>
+              <strong>17 March</strong>
+            </div>
+            <div class="stat-card">
+              <small>Track</small>
+              <strong>Eaglerock Oval</strong>
+            </div>
+            <div class="stat-card">
+              <small>Race Length</small>
+              <strong>200 Laps</strong>
+            </div>
+            <div class="stat-card">
+              <small>Platform</small>
+              <strong>Forza Motorsport 2023</strong>
+            </div>
+            <div class="stat-card">
+              <small>Grid Status</small>
+              <strong>19 / 25 Registered</strong>
+            </div>
+            <div class="stat-card">
+              <small>Entry</small>
+              <strong>Free Registration</strong>
+            </div>
+          </div>
+
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="#register">Secure Your Slot</a>
+            <a class="btn btn-secondary" href="#rules">View Sporting Rules</a>
+          </div>
+        </div>
+
+        <aside class="prize-panel glass">
+          <div class="prize-head">
+            <div class="prize-label">Grand Prize</div>
+            <div class="prize-title">Moza R3<br>Bundle</div>
+          </div>
+
+          <div class="prize-image-wrap">
+            <img src="moza.png" alt="Moza R3 Bundle" class="prize-image">
+          </div>
+
+          <div class="prize-meta">
+            <div class="meta-item stat-card">
+              <small>Check-In</small>
+              <strong>7:00 PM</strong>
+            </div>
+            <div class="meta-item stat-card">
+              <small>Race Start</small>
+              <strong>8:00 PM</strong>
+            </div>
+            <div class="meta-item stat-card">
+              <small>Format</small>
+              <strong>Season Event</strong>
+            </div>
+            <div class="meta-item stat-card">
+              <small>Availability</small>
+              <strong>6 Spots Remaining</strong>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <section id="about">
+      <div class="section-head">
+        <h2>About Apex Grid Series</h2>
+        <p>
+          Apex Grid Series is a structured sim racing competition format focused on organized race nights, stewarded sessions, clean driving expectations, and limited-grid events designed to feel professional from registration through results review.
+        </p>
+      </div>
+
+      <div class="panel glass">
+        <div class="feature-grid">
+          <div class="feature-card">
+            <h3>Established Event Format</h3>
+            <p>Built around seasonal specials, fixed-cap grids, published rules, and a consistent race control structure.</p>
+          </div>
+          <div class="feature-card">
+            <h3>Clean Racing Standard</h3>
+            <p>Drivers are expected to maintain discipline through traffic, restarts, lane changes, and contact management.</p>
+          </div>
+          <div class="feature-card">
+            <h3>Broadcast-Ready Presentation</h3>
+            <p>Event pages, timing windows, and check-in procedures are formatted to feel like a legitimate competitive series.</p>
+          </div>
+          <div class="feature-card">
+            <h3>Prize-Backed Competition</h3>
+            <p>The winning driver takes the featured hardware reward after final result verification and steward review.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="event">
+      <div class="section-head">
+        <h2>Event Details</h2>
+        <p>
+          This round is an endurance-style oval challenge designed to reward consistency, focus, pit discipline, and traffic management over a long green-flag distance.
+        </p>
+      </div>
+
+      <div class="panel glass">
+        <div class="info-grid">
+          <div class="info-card">
+            <h3>Venue</h3>
+            <p>Official competition track selection for this event.</p>
+            <strong>Eaglerock Oval</strong>
+          </div>
+          <div class="info-card">
+            <h3>Title</h3>
+            <p>Main championship special event format.</p>
+            <strong>Spring Oval Challenge</strong>
+          </div>
+          <div class="info-card">
+            <h3>Game</h3>
+            <p>Event platform used for race night.</p>
+            <strong>Forza Motorsport (2023)</strong>
+          </div>
+          <div class="info-card">
+            <h3>Distance</h3>
+            <p>Total race length for the main event.</p>
+            <strong>200 Laps</strong>
+          </div>
+          <div class="info-card">
+            <h3>Entry Cap</h3>
+            <p>Limited field to preserve session quality.</p>
+            <strong>25 Drivers</strong>
+          </div>
+          <div class="info-card">
+            <h3>Prize</h3>
+            <p>Winner reward after official classification.</p>
+            <strong>Moza R3 Bundle</strong>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="rules">
+      <div class="section-head">
+        <h2>Sporting Rules</h2>
+        <p>
+          These baseline regulations are included to give the event a proper organized feel and make the page read like a real competition portal.
+        </p>
+      </div>
+
+      <div class="panel glass">
+        <div class="rule-grid">
+          <div class="rule-item"><strong>Clean Driving Required</strong>Drivers must avoid reckless contact, retaliation, and deliberate blocking during green-flag or caution situations.</div>
+          <div class="rule-item"><strong>Check-In Is Mandatory</strong>Registered drivers must be present before lobby lock. Unconfirmed drivers may be replaced by reserves.</div>
+          <div class="rule-item"><strong>Connection Stability</strong>Participants are expected to join with a stable connection and a usable audio line for official briefings if required.</div>
+          <div class="rule-item"><strong>Race Control Authority</strong>Stewarding and final classification decisions remain binding after incident review and result confirmation.</div>
+          <div class="rule-item"><strong>Input Devices</strong>Wheel and controller users are both permitted unless otherwise stated for a future special event format.</div>
+          <div class="rule-item"><strong>Result Verification</strong>Prize release occurs after session logs, standings, and any incident flags are officially cleared.</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="register">
+      <div class="section-head">
+        <h2>Driver Registration</h2>
+        <p>
+          Submit your driver details to reserve a slot on the grid. Registration is limited and closes once the field reaches capacity.
+        </p>
+      </div>
+
+      <div class="register-grid">
+        <div class="timeline glass">
+          <div class="timeline-title">Entry Status</div>
+          <div class="timeline-note">Current registration count reflects confirmed entries for the Spring Oval Challenge main field.</div>
+
+          <div class="progress-box">
+            <div class="progress-head">
+              <strong>19 / 25 drivers registered</strong>
+              <span>6 spots remaining</span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill"></div></div>
+          </div>
+
+          <div class="timeline-steps">
+            <div class="timeline-step">
+              <div class="step-num">1</div>
+              <div>
+                <h4>Submit registration</h4>
+                <div class="timeline-note">Enter your phone number, email, and Forza Motorsport username to request a place on the starting grid.</div>
+              </div>
+            </div>
+            <div class="timeline-step">
+              <div class="step-num">2</div>
+              <div>
+                <h4>Receive confirmation</h4>
+                <div class="timeline-note">Approved drivers receive event instructions, check-in timing, and final lobby access details.</div>
+              </div>
+            </div>
+            <div class="timeline-step">
+              <div class="step-num">3</div>
+              <div>
+                <h4>Join race night</h4>
+                <div class="timeline-note">Driver check-in opens at 7:00 PM with the main event scheduled to start at 8:00 PM on 17 March.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-panel glass">
+          <div class="form-wrap">
+            <div class="form-title">Register Now</div>
+            <div class="form-note">Fill out the form below to request entry for Apex Grid Series — Spring Oval Challenge.</div>
+
+            <form>
+              <div>
+                <label for="driver-name">Full Name</label>
+                <input id="driver-name" type="text" placeholder="Enter your full name">
+              </div>
+
+              <div class="field-row">
+                <div>
+                  <label for="phone">Phone Number</label>
+                  <input id="phone" type="tel" placeholder="Enter phone number">
+                </div>
+                <div>
+                  <label for="email">Email Address</label>
+                  <input id="email" type="email" placeholder="Enter email address">
+                </div>
+              </div>
+
+              <div>
+                <label for="forza-id">Forza Motorsport Username</label>
+                <input id="forza-id" type="text" placeholder="Enter your Forza username">
+              </div>
+
+              <div class="field-row">
+                <div>
+                  <label for="input-device">Input Device</label>
+                  <select id="input-device">
+                    <option>Controller</option>
+                    <option>Keyboard</option>
+                    <option>Other</option>
+                  </select>
+                </div>
+                <div>
+                  <label for="region">Region</label>
+                  <select id="region">
+                    <option>Asia</option>
+                    <option>Europe</option>
+                    <option>North America</option>
+                    <option>Other</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label for="notes">Additional Notes</label>
+                <textarea id="notes" placeholder="Optional notes for race admin"></textarea>
+              </div>
+
+              <label class="checkbox" for="agree">
+                <input id="agree" type="checkbox">
+                <span>I confirm that my registration details are accurate and that I agree to follow event conduct and race control decisions.</span>
+              </label>
+
+              <button class="btn btn-primary" type="submit">Submit Registration</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <h2>Race Schedule</h2>
+        <p>
+          A simple race-day structure gives the page more authenticity and makes it look like a real event portal instead of a prop page.
+        </p>
+      </div>
+
+      <div class="panel glass">
+        <div class="info-grid">
+          <div class="info-card">
+            <h3>Registration Window</h3>
+            <p>Open until the driver cap is reached.</p>
+            <strong>Now Open</strong>
+          </div>
+          <div class="info-card">
+            <h3>Driver Check-In</h3>
+            <p>Confirmation and lobby prep period.</p>
+            <strong>17 March · 7:00 PM</strong>
+          </div>
+          <div class="info-card">
+            <h3>Main Race Start</h3>
+            <p>Official green-flag start time.</p>
+            <strong>17 March · 8:00 PM</strong>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="faq">
+      <div class="section-head">
+        <h2>Frequently Asked Questions</h2>
+        <p>
+          These common questions help the site feel complete and believable while still staying generic enough for a fictional competition brand.
+        </p>
+      </div>
+
+      <div class="faq-grid">
+        <div class="faq-item">
+          <h3>Do I need a wheel to enter?</h3>
+          <p>No. Wheel and controller users are both permitted unless a future event format states otherwise.</p>
+        </div>
+        <div class="faq-item">
+          <h3>Is there an entry fee?</h3>
+          <p>No entry fee is listed for this event. Registration is limited by available grid space only.</p>
+        </div>
+        <div class="faq-item">
+          <h3>How is the winner decided?</h3>
+          <p>The winner is the officially classified driver after race completion and final result verification.</p>
+        </div>
+        <div class="faq-item">
+          <h3>What happens if the grid fills up?</h3>
+          <p>Once capacity is reached, registration closes and later applicants may be placed on reserve status.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="contact">
+      <div class="section-head">
+        <h2>Contact & Support</h2>
+        <p>
+          Include basic contact details so the page reads like a proper event website with admin support and official communication lines.
+        </p>
+      </div>
+
+      <div class="footer-grid">
+        <div class="footer-card">
+          <h3>Apex Grid Series</h3>
+          <p>Independent sim racing event administration focused on structured competition, limited-grid specials, and professional race-night presentation.</p>
+        </div>
+        <div class="footer-card">
+          <h3>Contact</h3>
+          <div class="link-list">
+            <a href="mailto:contact@apexgridseries.com">contact@apexgridseries.com</a>
+            <a href="tel:+8801000000000">+880 1000-000000</a>
+            <a href="#register">Open registration form</a>
+          </div>
+        </div>
+        <div class="footer-card">
+          <h3>Quick Links</h3>
+          <div class="link-list">
+            <a href="#about">About</a>
+            <a href="#event">Event Details</a>
+            <a href="#rules">Sporting Rules</a>
+            <a href="#faq">FAQ</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <div>© 2026 Apex Grid Series. All rights reserved.</div>
+        <div>Privacy Policy · Terms of Service · Sporting Code</div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
